@@ -185,6 +185,14 @@ We welcome contributions! Please consider:
 
 This project is open source and available under the MIT License.
 
+## 📋 Development Roadmap
+
+See our [TODO.md](./TODO.md) for the complete implementation plan, including:
+- Migration to Elasticsearch for real-time data streaming
+- Multi-city support (Boston + Cambridge + future expansion)
+- Kubernetes deployment architecture
+- Performance optimization goals
+
 ## 🙏 Acknowledgments
 
 - **City of Boston** for providing open 311 data
