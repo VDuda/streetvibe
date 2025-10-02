@@ -1,9 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useRef } from 'react';
 import { ServiceRequest } from '@/types/boston-311';
-import { X, MapPin, Calendar, User, FileText, Camera } from 'lucide-react';
+import { X, MapPin, Calendar, User, FileText } from 'lucide-react';
 
 interface ServiceRequestModalProps {
   request: ServiceRequest | null;
@@ -13,40 +12,6 @@ interface ServiceRequestModalProps {
 }
 
 export function ServiceRequestModal({ request, isOpen, onClose, onFocusMap }: ServiceRequestModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-
-  // Handle ESC key press
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      // Focus management
-      closeButtonRef.current?.focus();
-      // Prevent body scroll
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen, onClose]);
-
-  // Handle backdrop click
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
   if (!isOpen || !request) return null;
 
   const handleFocusMap = () => {
@@ -80,102 +45,72 @@ export function ServiceRequestModal({ request, isOpen, onClose, onFocusMap }: Se
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'open':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-100 text-red-800';
       case 'closed':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 text-green-800';
       case 'in_progress':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-100 text-yellow-800';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getPriorityColor = (onTime: string) => {
-    return onTime === 'ONTIME' 
-      ? 'bg-green-50 text-green-700' 
-      : 'bg-orange-50 text-orange-700';
-  };
-
   return (
-    <div 
-      className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-2 sm:p-4 animate-in fade-in duration-200"
-      onClick={handleBackdropClick}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
-    >
-      <div 
-        ref={modalRef}
-        className="bg-white rounded-xl sm:rounded-2xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-lg">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 sm:p-6">
+        <div className="bg-blue-600 text-white p-4">
           <div className="flex justify-between items-start">
-            <div className="flex-1 min-w-0">
-              <h2 id="modal-title" className="text-lg sm:text-2xl font-bold mb-2 pr-2">{request.case_title}</h2>
-              <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-blue-100">
-                <span className="text-xs sm:text-sm">#{request.case_enquiry_id}</span>
-                <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(request.case_status)}`}>
+            <div className="flex-1">
+              <h2 className="text-lg font-bold mb-2">{request.case_title}</h2>
+              <div className="flex items-center gap-3 text-blue-100">
+                <span className="text-sm">#{request.case_enquiry_id}</span>
+                <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(request.case_status)}`}>
                   {request.case_status}
-                </span>
-                <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(request.on_time)}`}>
-                  {request.on_time}
                 </span>
               </div>
             </div>
             <button
-              ref={closeButtonRef}
               onClick={onClose}
-              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
-              aria-label="Close modal"
+              className="p-1 hover:bg-white hover:bg-opacity-20 rounded"
             >
-              <X size={24} />
+              <X size={20} />
             </button>
           </div>
         </div>
 
-        <div className="overflow-y-auto max-h-[calc(95vh-120px)] sm:max-h-[calc(90vh-140px)]">
-          {/* Hero Section with Images */}
+        <div className="overflow-y-auto max-h-[calc(90vh-100px)]">
+          {/* Photos */}
           {(request.submitted_photo || request.closed_photo) && (
-            <div className="p-4 sm:p-6 bg-gray-50">
-              <div className="flex items-center gap-2 mb-4">
-                <Camera className="text-gray-600" size={18} />
-                <h3 className="text-base sm:text-lg font-semibold text-gray-800">Photos</h3>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="p-4 bg-gray-50">
+              <h3 className="font-medium mb-3">Photos</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {request.submitted_photo && (
-                  <div className="relative group">
-                    <div className="absolute top-3 left-3 bg-blue-600 text-white px-2 py-1 rounded-md text-xs font-medium z-10">
-                      Submitted
-                    </div>
+                  <div>
+                    <div className="text-xs text-gray-600 mb-1">Submitted</div>
                     <Image
                       src={getImageUrl(request.submitted_photo) || ''}
-                      alt="Submitted photo for incident"
-                      width={400}
-                      height={300}
-                      className="w-full h-48 sm:h-64 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-all duration-200 hover:scale-105"
+                      alt="Submitted photo"
+                      width={300}
+                      height={200}
+                      className="w-full h-40 object-cover rounded"
                       onError={(e) => {
-                        const parent = e.currentTarget.parentElement;
-                        if (parent) parent.style.display = 'none';
+                        e.currentTarget.style.display = 'none';
                       }}
                     />
                   </div>
                 )}
                 {request.closed_photo && (
-                  <div className="relative group">
-                    <div className="absolute top-3 left-3 bg-green-600 text-white px-2 py-1 rounded-md text-xs font-medium z-10">
-                      Resolution
-                    </div>
+                  <div>
+                    <div className="text-xs text-gray-600 mb-1">Resolution</div>
                     <Image
                       src={getImageUrl(request.closed_photo) || ''}
-                      alt="Resolution photo for incident"
-                      width={400}
-                      height={300}
-                      className="w-full h-48 sm:h-64 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-all duration-200 hover:scale-105"
+                      alt="Resolution photo"
+                      width={300}
+                      height={200}
+                      className="w-full h-40 object-cover rounded"
                       onError={(e) => {
-                        const parent = e.currentTarget.parentElement;
-                        if (parent) parent.style.display = 'none';
+                        e.currentTarget.style.display = 'none';
                       }}
                     />
                   </div>
@@ -184,121 +119,79 @@ export function ServiceRequestModal({ request, isOpen, onClose, onFocusMap }: Se
             </div>
           )}
 
-          {/* Content Grid */}
-          <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-            {/* Location Card */}
-            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-center gap-2 mb-4">
-                <MapPin className="text-blue-600" size={20} />
-                <h3 className="text-lg font-semibold text-gray-800">Location</h3>
+          {/* Details */}
+          <div className="p-4 space-y-4">
+            {/* Location */}
+            <div className="border rounded-lg p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <MapPin className="text-blue-600" size={16} />
+                <h3 className="font-medium">Location</h3>
               </div>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-gray-500">Address</p>
-                  <p className="font-medium">{request.location}</p>
-                </div>
-                {request.neighborhood && (
-                  <div>
-                    <p className="text-sm text-gray-500">Neighborhood</p>
-                    <p className="font-medium">{request.neighborhood}</p>
-                  </div>
-                )}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-500">ZIP Code</p>
-                    <p className="font-medium">{request.location_zipcode || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Coordinates</p>
-                    <p className="text-xs font-mono">{request.latitude}, {request.longitude}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={handleFocusMap}
-                  className="w-full mt-4 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium flex items-center justify-center gap-2 active:scale-95"
-                >
-                  <MapPin size={16} />
-                  View on Map
-                </button>
-              </div>
+              <p className="text-sm text-gray-600 mb-2">{request.location}</p>
+              {request.neighborhood && (
+                <p className="text-xs text-gray-500 mb-2">Neighborhood: {request.neighborhood}</p>
+              )}
+              <button
+                onClick={handleFocusMap}
+                className="w-full mt-2 px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+              >
+                View on Map
+              </button>
             </div>
 
-            {/* Timeline Card */}
-            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-center gap-2 mb-4">
-                <Calendar className="text-green-600" size={20} />
-                <h3 className="text-lg font-semibold text-gray-800">Timeline</h3>
+            {/* Timeline */}
+            <div className="border rounded-lg p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar className="text-green-600" size={16} />
+                <h3 className="font-medium">Timeline</h3>
               </div>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  <div>
-                    <p className="text-sm text-gray-500">Opened</p>
-                    <p className="font-medium">{formatDate(request.open_dt)}</p>
-                  </div>
+              <div className="space-y-1 text-sm">
+                <div>
+                  <span className="text-gray-500">Opened:</span> {formatDate(request.open_dt)}
                 </div>
-                {request.sla_target_dt && (
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                    <div>
-                      <p className="text-sm text-gray-500">Target Resolution</p>
-                      <p className="font-medium">{formatDate(request.sla_target_dt)}</p>
-                    </div>
-                  </div>
-                )}
                 {request.closed_dt && (
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <div>
-                      <p className="text-sm text-gray-500">Closed</p>
-                      <p className="font-medium">{formatDate(request.closed_dt)}</p>
-                    </div>
+                  <div>
+                    <span className="text-gray-500">Closed:</span> {formatDate(request.closed_dt)}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Department Card */}
-            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-center gap-2 mb-4">
-                <User className="text-purple-600" size={20} />
-                <h3 className="text-lg font-semibold text-gray-800">Department Info</h3>
+            {/* Department */}
+            <div className="border rounded-lg p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <User className="text-purple-600" size={16} />
+                <h3 className="font-medium">Department</h3>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-1 text-sm">
                 <div>
-                  <p className="text-sm text-gray-500">Department</p>
-                  <p className="font-medium">{request.department}</p>
+                  <span className="text-gray-500">Department:</span> {request.department}
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Request Type</p>
-                  <p className="font-medium">{request.type}</p>
+                  <span className="text-gray-500">Type:</span> {request.type}
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Source</p>
-                  <p className="font-medium">{request.source}</p>
+                  <span className="text-gray-500">Source:</span> {request.source}
                 </div>
               </div>
             </div>
 
-            {/* Description Card */}
-            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-center gap-2 mb-4">
-                <FileText className="text-orange-600" size={20} />
-                <h3 className="text-lg font-semibold text-gray-800">Details</h3>
+            {/* Details */}
+            <div className="border rounded-lg p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <FileText className="text-orange-600" size={16} />
+                <h3 className="font-medium">Details</h3>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-1 text-sm">
                 <div>
-                  <p className="text-sm text-gray-500">Subject</p>
-                  <p className="font-medium">{request.subject}</p>
+                  <span className="text-gray-500">Subject:</span> {request.subject}
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Reason</p>
-                  <p className="font-medium">{request.reason}</p>
+                  <span className="text-gray-500">Reason:</span> {request.reason}
                 </div>
                 {request.closure_reason && (
                   <div>
-                    <p className="text-sm text-gray-500">Closure Reason</p>
-                    <p className="font-medium">{request.closure_reason}</p>
+                    <span className="text-gray-500">Closure Reason:</span> {request.closure_reason}
                   </div>
                 )}
               </div>
