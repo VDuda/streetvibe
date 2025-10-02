@@ -84,7 +84,7 @@ export default function Home() {
   return (
     <>
       {/* Mobile View */}
-      <div className="lg:hidden h-screen flex flex-col bg-white">
+      <div className="md:hidden h-screen flex flex-col bg-white">
         {/* Mobile Header */}
         <div className="bg-white border-b p-4 flex items-center justify-between">
           <div>
@@ -142,7 +142,7 @@ export default function Home() {
       </div>
 
       {/* Desktop View - List AND Map together */}
-      <div className="hidden lg:flex h-screen bg-white">
+      <div className="hidden md:flex h-screen bg-white">
         <aside className="w-96 border-r border-gray-200 bg-white flex flex-col">
           <div className="p-6 border-b border-gray-200">
             <h1 className="text-2xl font-bold text-gray-900">Boston 311</h1>

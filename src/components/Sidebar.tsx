@@ -66,6 +66,10 @@ export function Sidebar({ requests, onIncidentClick, onDetailsClick, selectedReq
               
               <p className="text-sm text-gray-600 mb-2">{request.location}</p>
               
+              {request.subject && (
+                <p className="text-sm text-gray-700 mb-2 line-clamp-2">{request.subject}</p>
+              )}
+              
               <div className="flex justify-between items-center text-xs text-gray-500">
                 <span>Opened: {formatDate(request.open_dt)}</span>
                 {(request.submitted_photo || request.closed_photo) && (
